@@ -5,6 +5,8 @@ import * as React from "react";
 import { cameras, controls, drawCommands, entitiesFromSolids, prepareRender } from "@jscad/regl-renderer";
 import { useAnimationFrame, useKeyPress } from "../hooks/rendererHooks";
 import { useDrag, usePinch, useWheel } from "@use-gesture/react";
+import { useAtom } from "jotai";
+import { isRotationLockedAtom } from "../states/rendererAtom";
 
 type Solid = any;
 
@@ -56,12 +58,12 @@ const initialProps = ({ animate, height, options, solids, width }: RendererProps
     options: {
       gridOptions: {
         show: true,
-        color: [0, 0, 0, 1],
+        color: [0, 0, 0, 0.9],
         subColor: [0, 0, 1, 0.5],
-        fadeOut: false,
-        transparent: true,
-        size: [144, 144],
-        ticks: [12, 1],
+        fadeOut: true,
+        transparent: false,
+        size: [1000, 1000],
+        ticks: [10, 1],
         ...options?.gridOptions
       },
       axisOptions: {
@@ -69,7 +71,11 @@ const initialProps = ({ animate, height, options, solids, width }: RendererProps
         ...options?.axisOptions
       },
       viewerOptions: {
-        initialPosition: [50, -50, 50],
+        /*
+          2D view setting for the initial camera position.
+          x axis set in -0.01 because 0 isn't displaying the grid.
+        */
+        initialPosition: [-0.01, 0, 20],
         panSpeed: 0.75,
         rotateSpeed: 0.002,
         zoomSpeed: 0.03,
@@ -138,6 +144,7 @@ document.addEventListener("gesturechange", e => e.preventDefault());
 const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forwardRef) => {
   const { animate, height, options, solids, width } = initialProps(props);
   const [state, dispatch] = React.useReducer(reducer, initialState(options));
+  const [isRotationLocked] = useAtom(isRotationLockedAtom);
   const ref = React.useRef<HTMLDivElement>(null);
 
   const content = React.useMemo(() => {
@@ -182,7 +189,9 @@ const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forward
     solids
   ]);
 
+  
   useDrag((event) => {
+    if (isRotationLocked) return;
     dispatch({ type: "SET_INPUTS", payload: { ...state.inputs, mouse: event.down ? "down" : "up" } })
     if (state.inputs.mouse === "down" && (state.inputs.shift === "down" || event.touches === 3)) dispatch({ type: "SET_PAN_DELTA", payload: [-event.delta[0], event.delta[1]] })
     if (state.inputs.mouse === "down" && state.inputs.shift === "up" && event.touches === 1) dispatch({ type: "SET_ROTATE_DELTA", payload: [event.delta[0], -event.delta[1]] })
