@@ -39,6 +39,7 @@ const useAnimationFrame = (enabled: boolean, callback: (time: number, delta: num
     return () => {
       if (frame.current) cancelAnimationFrame(frame.current);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 

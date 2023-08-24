@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import { cameras, controls, drawCommands, entitiesFromSolids, prepareRender } from "@jscad/regl-renderer";
 import { useAnimationFrame, useKeyPress } from "../hooks/rendererHooks";
@@ -163,6 +166,7 @@ const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forward
             show: options?.axisOptions?.show
           }
         },
+        // @ts-ignore
         ...entitiesFromSolids({}, solids)
       ]
     }
@@ -236,6 +240,7 @@ const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forward
       type: "SET_RENDER",
       payload: prepareRender({
         glOptions: { container: state.element },
+        // @ts-ignore
         camera: state.camera,
         ...content
       })
@@ -296,4 +301,6 @@ const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forward
 
 Renderer.displayName = "Renderer";
 
-export { RendererProps, RendererState, RendererAction, Renderer, initialProps, initialState }
+export { Renderer, initialProps, initialState };
+export type { RendererProps, RendererState, RendererAction };
+
