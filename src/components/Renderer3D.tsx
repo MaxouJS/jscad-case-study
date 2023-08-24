@@ -6,6 +6,8 @@ import { cameras, controls, drawCommands, entitiesFromSolids, prepareRender } fr
 import { useAnimationFrame, useKeyPress } from "../hooks/rendererHooks";
 import { useDrag, usePinch, useWheel } from "@use-gesture/react";
 import { useAtom } from "jotai";
+
+// States
 import { isRotationLockedAtom } from "../states/rendererAtom";
 
 type Solid = any;
@@ -72,10 +74,9 @@ const initialProps = ({ animate, height, options, solids, width }: RendererProps
       },
       viewerOptions: {
         /*
-          2D view setting for the initial camera position.
-          x axis set in -0.01 because 0 isn't displaying the grid.
+          3D view setting for the initial camera position.
         */
-        initialPosition: [-0.01, 0, 20],
+        initialPosition: [50, 50, 50],
         panSpeed: 0.75,
         rotateSpeed: 0.002,
         zoomSpeed: 0.03,
@@ -141,10 +142,10 @@ function reducer (state: RendererState, action: RendererAction): RendererState {
 document.addEventListener("gesturestart", e => e.preventDefault());
 document.addEventListener("gesturechange", e => e.preventDefault());
 
-const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forwardRef) => {
+const Renderer3D = React.forwardRef<HTMLDivElement, RendererProps>((props, forwardRef) => {
   const { animate, height, options, solids, width } = initialProps(props);
   const [state, dispatch] = React.useReducer(reducer, initialState(options));
-  const [isRotationLocked] = useAtom(isRotationLockedAtom);
+  const [isRotationLocked] = useAtom<boolean>(isRotationLockedAtom);
   const ref = React.useRef<HTMLDivElement>(null);
 
   const content = React.useMemo(() => {
@@ -308,8 +309,8 @@ const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forward
   return <div ref={forwardRef} style={{ touchAction: "none" }} />
 })
 
-Renderer.displayName = "Renderer";
+Renderer3D.displayName = "Renderer";
 
-export { Renderer, initialProps, initialState };
+export { Renderer3D, initialProps, initialState };
 export type { RendererProps, RendererState, RendererAction };
 
