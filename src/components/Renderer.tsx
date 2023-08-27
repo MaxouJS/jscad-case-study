@@ -37,6 +37,7 @@ interface RendererProps {
   };
   solids: Solid[];
   width?: number;
+  view: "2D" | "3D";
 }
 
 interface RendererState {
@@ -53,7 +54,45 @@ interface RendererState {
   zoomDelta: number;
 }
 
-const initialProps = ({ animate, height, options, solids, width }: RendererProps): RendererProps => {
+const initial2DProps = ({ animate, height, options, solids, width }: RendererProps): RendererProps => {
+  return {
+    animate: animate || false,
+    height: height || 480,
+    options: {
+      gridOptions: {
+        show: true,
+        color: [0, 0, 0, 0.9],
+        subColor: [0, 0, 1, 0.5],
+        fadeOut: true,
+        transparent: false,
+        size: [1000, 1000],
+        ticks: [10, 1],
+        ...options?.gridOptions
+      },
+      axisOptions: {
+        show: true,
+        ...options?.axisOptions
+      },
+      viewerOptions: {
+        /*
+          2D view setting for the initial camera position.
+          x axis set in -0.01 because 0 isn't displaying the grid.
+        */
+        initialPosition: [-0.01, 0, 20],
+        panSpeed: 0.75,
+        rotateSpeed: 0.002,
+        zoomSpeed: 0.03,
+        ...options?.viewerOptions
+      }
+    },
+    solids: solids || [],
+    width: width || 480,
+    view: "2D",
+  };
+};
+
+
+const initial3DProps = ({ animate, height, options, solids, width }: RendererProps): RendererProps => {
   return {
     animate: animate || false,
     height: height || 480,
@@ -84,7 +123,8 @@ const initialProps = ({ animate, height, options, solids, width }: RendererProps
       }
     },
     solids: solids || [],
-    width: width || 480
+    width: width || 480,
+    view: "3D",
   };
 };
 
@@ -142,8 +182,8 @@ function reducer (state: RendererState, action: RendererAction): RendererState {
 document.addEventListener("gesturestart", e => e.preventDefault());
 document.addEventListener("gesturechange", e => e.preventDefault());
 
-const Renderer3D = React.forwardRef<HTMLDivElement, RendererProps>((props, forwardRef) => {
-  const { animate, height, options, solids, width } = initialProps(props);
+const Renderer = React.forwardRef<HTMLDivElement, RendererProps>((props, forwardRef) => {
+  const { animate, height, options, solids, width } = props.view === "3D" ? initial3DProps(props) : initial2DProps(props);
   const [state, dispatch] = React.useReducer(reducer, initialState(options));
   const [isRotationLocked] = useAtom<boolean>(isRotationLockedAtom);
   const ref = React.useRef<HTMLDivElement>(null);
@@ -309,8 +349,8 @@ const Renderer3D = React.forwardRef<HTMLDivElement, RendererProps>((props, forwa
   return <div ref={forwardRef} style={{ touchAction: "none" }} />
 })
 
-Renderer3D.displayName = "Renderer";
+Renderer.displayName = "Renderer";
 
-export { Renderer3D, initialProps, initialState };
+export { Renderer, initial2DProps, initial3DProps, initialState };
 export type { RendererProps, RendererState, RendererAction };
 

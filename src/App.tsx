@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useEffect, useState } from "react";
-import { Renderer2D } from "./components/Renderer2D";
-import { Renderer3D } from "./components/Renderer3D";
+import { Renderer } from "./components/Renderer";
 import { cuboid } from '@jscad/modeling/src/primitives'
 // import { rotate } from "@jscad/modeling/src/operations/transforms";
 import { Geom3 } from "@jscad/modeling/src/geometries/types";
@@ -93,8 +92,8 @@ export default function App() {
         </button>
       </nav>
       <section>
-        {canvasMode === "2D" ? <Renderer2D solids={solids} width={windowSize.width} height={windowSize.height} /> : null}
-        {canvasMode === "3D" ? <Renderer3D solids={solids} width={windowSize.width} height={windowSize.height} /> : null}
+        {canvasMode === "2D" ? <Renderer solids={solids} width={windowSize.width} height={windowSize.height} view={"2D"} /> : null}
+        {canvasMode === "3D" ? <Renderer solids={solids} width={windowSize.width} height={windowSize.height} view={"3D"} /> : null}
       </section>
     </main>
   );
